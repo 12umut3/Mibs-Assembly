@@ -1,0 +1,441 @@
+##
+## Program1.asm - prints out "hello world"
+##
+##	a0 - points to the string
+##
+
+#################################
+#					 	#
+#		text segment		#
+#						#
+#################################
+
+	.text		
+	.globl __start 
+
+__start:		# execution starts here
+	la $a0,str	# put string address into a0
+	li $v0,4	# system call to print
+	syscall	#   out a string
+
+	li $v0,10  # system call to exit
+	syscall	#    bye bye
+
+
+#################################
+#					 	#
+#     	 data segment		#
+#						#
+#################################
+
+	.data
+str:	.asciiz "hello world\n"
+n:	.word	10
+
+##
+## end of file Program1.asm
+***************************************************************************************************
+##
+## Program2.asm asks user for temperature in Celsius,
+##  converts to Fahrenheit, prints the result.
+##
+##	v0 - reads in Celsius
+##	t0 - holds Fahrenheit result
+##	a0 - points to output strings
+##
+
+#################################
+#					 	#
+#		text segment		#
+#						#
+#################################
+
+	.text		
+	.globl __start	
+
+__start:
+	la $a0,prompt	# output prompt message on terminal
+	li $v0,4		# syscall 4 prints the string
+	syscall
+
+	li $v0, 5		# syscall 5 reads an integer
+	syscall
+
+	mul $t0,$v0,9	# to convert,multiply by 9,
+	div $t0,$t0,5	# divide by 5, then
+	add $t0,$t0,32	# add 32
+
+	la $a0,ans1	# print string before result
+	li $v0,4
+	syscall
+
+	move $a0,$t0	# print integer result
+	li $v0,1		# using syscall 1
+	syscall
+
+	la $a0,endl	# system call to print
+	li $v0,4		# out a newline
+	syscall
+
+	li $v0,10		# system call to exit
+	syscall		#    bye bye
+
+
+#################################
+#					 	#
+#     	 data segment		#
+#						#
+#################################
+
+	.data
+prompt:	.asciiz "Enter temperature (Celsius): "
+ans1:		.asciiz "The temperature in Fahrenheit is "
+endl:		.asciiz "\n"
+
+##
+## end of file Program2.asm
+
+************************************************************************************
+##
+##	Program3.asm is a loop implementation
+##	of the Fibonacci function
+##        
+
+#################################
+#					 	#
+#		text segment		#
+#						#
+#################################
+
+	.text		
+.globl __start
+ 
+__start:			# execution starts here
+	li $a0,7		# to calculate fib(7)
+	jal fib		# call fib
+	move $a0,$v0	# print result
+	li $v0, 1
+	syscall
+
+	la $a0,endl		# print newline
+	li $v0,4
+	syscall
+
+	li $v0,10
+	syscall		# bye bye
+
+#------------------------------------------------
+
+
+fib:	move $v0,$a0	# initialise last element
+	blt $a0,2,done	# fib(0)=0, fib(1)=1
+
+	li $t0,0		# second last element
+	li $v0,1		# last element
+
+loop:	add $t1,$t0,$v0	# get next value
+	move $t0,$v0	# update second last
+	move $v0,$t1	# update last element
+	sub $a0,$a0,1	# decrement count
+	bgt $a0,1,loop	# exit loop when count=0
+done:	jr $ra
+
+#################################
+#					 	#
+#     	 data segment		#
+#						#
+#################################
+
+	.data
+endl:	.asciiz "\n"
+
+##
+## end of Program3.asm
+***************************************************************************************
+.data
+	prompt1:  .asciiz "Enter your a value: "	
+	prompt2:  .asciiz "Enter your b value: "	
+.text
+	#Prompt the user to enter a value
+	li $v0,4 
+	la $a0,prompt1		 #print promt
+	syscall
+	li $v0,5 		# read a value
+	syscall
+	addi $s0,$v0,0		# a value is keep in $s0
+	#Prompt the user to enter b value
+	li $v0,4 
+	la $a0,prompt2		 #print promt
+	syscall
+	li $v0,5		# read b value
+	syscall
+	addi $s1,$v0,0		#d value is keep in $s1
+	
+	mult $s0,$s0
+	mflo $t1 # a^2
+	
+	addi $t0,$0,5
+	mult $s1,$t0 #t0 = 5
+	mflo $t2 # 5b
+	
+	sub $t3,$t1,$t2
+	addi $t3,$t3,7 ## a^2 -5b + 7 
+	blt $t3,$0,loop2		
+temp:
+	addi $t4,$0,4		# to use $t0 for %4
+loop1:
+	slt $t1,$t3,$t4		#if x smaller than %4 returns x directly
+	bne $t1,$0,target	
+	sub $t3, $t3, $t4	#else s2-4 when it is smaller than $t0
+	j loop1
+loop2:
+	addi $t3,$t3,4
+	blt $t3,$0,loop2
+	j temp
+target:
+	li $v0, 1
+	move $a0, $t3
+	syscall
+	
+*****************************************************************************
+.data
+	prompt0: .asciiz "Enter the input number: "
+	prompt:  .asciiz "Enter the array element: "
+	prompt2:  .asciiz "array size: "
+	prompt3:  .asciiz "Array size should be smaller than 100: "
+	prompt4:  .asciiz "Array is: "
+	prompt5:  .asciiz "All Summation bigger than the input number: "
+	prompt6:  .asciiz "Enter the another number for summation: "
+	prompt7:  .asciiz "Even number summation: "
+	prompt8:  .asciiz "Odd number summation: "
+	promptmenu1: .asciiz "1-See the array Summation bigger than the input number"
+	promptmenu2: .asciiz "2-See the even number summation"
+	promptmenu3: .asciiz "3-See the odd number summation" 
+	promptmenu4: .asciiz "4-quit" 
+	promptmenu5: .asciiz "5-divisible part" 
+	space:	.asciiz " "
+	space2:  .asciiz "\n"
+.text
+	j loopcreatearray
+loopmenu:
+	#give prompt menu1
+	li $v0,4
+	la $a0,promptmenu1
+	syscall
+	li $v0,4
+	la $a0,space2
+	syscall
+	#give prompt to menu2
+	li $v0,4
+	la $a0,promptmenu2
+	syscall
+	li $v0,4
+	la $a0,space2
+	syscall
+	#give prompt to user to menu3
+	li $v0,4
+	la $a0,promptmenu3
+	syscall
+	li $v0,4
+	la $a0,space2
+	syscall
+	#give prompt to user to menu4
+	li $v0,4
+	la $a0,promptmenu4
+	syscall
+	li $v0,4
+	la $a0,space2
+	syscall
+	#give prompt to user to menu4
+	li $v0,4
+	la $a0,promptmenu5
+	syscall
+	li $v0,4
+	la $a0,space2
+	syscall
+	#get the user's number
+	li $v0,5 #read integer
+	syscall
+	
+	addi $t0,$0,1
+	addi $t1,$0,2
+	addi $t2,$0,3
+	addi $t3,$0,4
+	addi $t4,$0,5
+	#store the number in $s7
+	move $s7,$v0
+	beq $s7,$t0,printarray
+	beq $s7,$t1,printsumodd
+	beq $s7,$t2,printsumeven
+	beq $s7,$t3,exit2
+	beq $s7,$t4,printoccurrence
+	
+
+loopcreatearray:		
+	#create array
+	addi $t0,$0,0
+	addi $t1,$0,0
+	addi $t2,$0,0
+	
+	addi $v0,$0,9
+	li $a0,400
+	syscall
+	move $s0,$v0 #s0 contains adress of array
+	addi $s1,$s0,0 # to keep $s0
+	addi $t1,$0,0 # counter == t1
+	#give prompt to user to enter the array size
+	li $v0,4
+	la $a0,prompt2
+	syscall
+	li $v0,5 #read integer for array size
+	syscall
+	move $t2,$v0
+	addi $t3,$0,100
+	sltu $t1,$t3,$t2
+	addi $t4,$0,1 #t4 == 1 to use beq inst
+	beq  $t1,$t4,exit
+	addi $s3,$0,0
+	
+	#give prompt to user to enter the input number
+	li $v0,4
+	la $a0,prompt0
+	syscall
+	#get the user's number for summation
+	li $v0,5 #read integer
+	syscall
+	move $t9,$v0
+	
+	
+	addi $t6,$0,0
+	addi $s4,$0,0
+	
+		
+	
+	#### second array creation
+	addi $v0,$0,9
+	li $a0,400
+	syscall
+	move $s6,$v0 #s0 contains adress of array
+	addi $s7,$s6,0 # to keep $s1
+		
+loop1:
+	#give prompt to user to enter the number
+	li $v0,4
+	la $a0,prompt
+	syscall
+	#get the user's number
+	li $v0,5 #read integer
+	syscall
+	#store the number in $t0
+	move $t0,$v0
+	sw $t0, 0($s1)
+	addi $t7,$0,1
+	sgt $t8,$t9,$t0
+
+	addi $t3,$0,2
+	div $t0,$t3
+	mfhi $t4
+	addi $t5,$0,0
+	beq $t4,$t5,oddSum
+	j evenSum
+continue2:	
+	div $t0,$t9
+	mfhi $t4
+	addi $t5,$0,0
+	beq $t4,$t5,occurrence
+	
+continue1:
+	beq $t8,$t7,loop1cont
+	beq $t9,$t0,loop1cont
+	add $s3,$s3,$t0
+loop1cont:		
+	#check all array is full or not
+	addi $s1,$s1,4
+	addi $t1,$t1,1
+	bne $t1,$t2,loop1
+	# if array is full 
+	add $t1, $0, $0 		# counter
+	addi $s1,$s0, 0
+		
+	j loopmenu # to print the array
+	
+exit:
+	#give prompt to user to enter the array size
+	li $v0,4
+	la $a0,prompt3
+	syscall
+	li $v0,10
+	syscall
+printarray:
+	lw $t0,0($s1)
+	li $v0,1
+	move $a0,$t0
+	syscall
+	li $v0,4
+	la $a0,space
+	syscall
+	addi $s1, $s1, 4
+	addi $t1, $t1, 1
+	bne $t1, $t2, printarray	#loop check
+	
+	li $v0, 4               
+  	la $a0, space2
+  	syscall
+	
+	li $v0, 4               
+  	la $a0, prompt5
+  	syscall
+	
+	li $v0,1
+	move $a0,$s3
+	syscall
+	
+	li $v0, 4               
+  	la $a0, space2
+  	syscall
+  	j loopmenu
+printsumodd:		
+	#give prompt to user to show odd number sum
+	li $v0,4
+	la $a0,prompt7
+	syscall
+	li $v0,1
+	move $a0,$t6
+	syscall
+	li $v0,4
+	la $a0,space2
+	syscall
+	j loopmenu
+printsumeven:
+	#give prompt to user to show even number sum
+	li $v0,4
+	la $a0,prompt8
+	syscall	
+	li $v0,1
+	move $a0,$s4
+	syscall
+	li $v0,4
+	la $a0,space2
+	syscall
+	j loopmenu
+printoccurrence:
+	addi $t1,$0,5
+	li $v0,1
+	move $a0,$s5
+	syscall			
+oddSum:
+	add $t6,$t6,$t0
+	j continue2
+evenSum:
+	add $s4,$s4,$t0
+	j continue2
+occurrence:
+	#store the number in $t0
+	addi $s5,$s5,1
+	j continue1
+	
+exit2:
+	li $v0,10
+	syscall
+
+
